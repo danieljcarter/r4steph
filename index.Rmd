@@ -1,0 +1,26 @@
+---
+title: "R for Statistics in EPH"
+author: "Daniel J Carter"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: 
+  bookdown::gitbook:
+    css: style.css
+    split_by: section
+    config:
+      toc:
+        collapse: none
+        before: |
+          <li><a href="./">R for STEPH</a></li>
+    toolbar: 
+      position: static
+documentclass: book
+delete_merged_file: true
+# bibliography: [r4steph.bib]
+# biblio-style: apalike
+# link-citations: yes
+---
+
+# Preface {-}
+
+Wheee!! Look at you go learning R you self-starting M.Sc. student you

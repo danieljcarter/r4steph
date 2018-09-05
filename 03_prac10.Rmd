@@ -1,0 +1,4 @@
+
+# Comparing Two Categorical Variables: Practical 10
+
+In this practical we compare two categorical variables

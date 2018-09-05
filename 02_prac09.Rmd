@@ -1,0 +1,4 @@
+
+# Comparing Two Means: Practical 9
+
+In this practical, we compare two means.

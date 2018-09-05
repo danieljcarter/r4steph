@@ -1,0 +1,4 @@
+
+# Stratified Analysis of 2x2 Tables: Practical 13
+
+In this practical we look at stratified analysis of 2x2 tables

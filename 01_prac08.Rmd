@@ -1,0 +1,50 @@
+
+
+# Intro to R: Practical 8
+
+This document guides you through the use of the statistical computer software R for analysis of data used in the course. R is an open-source (i.e. free) alternative to Stata, rapidly growing in popularity. Normally, R is used in conjunction with RStudio, an Integrated Development Environment (IDE) that streamlines the effective use of the software.  
+
+R has a steeper learning curve than Stata, so allow time for your confidence to grow. We first concentrate on learning R and not introducing new statistical concepts. 
+
+Before using R, you will need to copy the datafiles for the practicals to your home space. In order to do this, you will need to copy the files located in "U:\\download\\teach\\steph" to a folder on your H:\\ drive
+
+---
+
+So far, in the pen and paper practicals, you have worked with summary level data in the form of tables of percentages, frequencies, means, standard deviations, etc. When moving to the computer practicals, we will work from the original (raw) data. So a statistical analysis will allow us to reproduce these tables before we analyse. These data are held in a file (normally a .csv file, or a .dta file). For R to work, the data must first be read in. After reading in the data, we can apply a series of commands to either manipulate or analyse the data. To see this in action, we will use R to carry out some simple analyses on the BAB.dta dataset.
+
+## Opening RStudio
+
+First, open RStudio from the Novell Applications window. Go to File in the top left corner and select New File, then R Notebook.  You should now see four separate panes. If this is your initial time setting up RStudio, you will also have to go to Tools then Modify Keyboard Shortcuts... Find `Insert new chunk', click anywhere in the line, and hold Ctrl-Shift-I - we do this overwriting as the standard keyboard shortcut fails on school computers. You may also wish to go into Tools, then Global Options, then Appearance to find an R theme that works for you.
+
+```{r pressure, echo=FALSE, fig.cap="What RStudio should look like on opening a new Notebook", out.width = '100%'}
+knitr::include_graphics("E:/LSHTM/Teaching/r4steph/panes.PNG")
+```
+
+The top left of the four panes is the Notebook. The majority of your coding will be done here. Go ahead and retitle your notebook now, overwriting the default text. The notebook itself is written in R Markdown. R Markdown provides a convenient way of mixing text and code, and also allows you to publish ('knit') your work into an html, Word, or pdf file. Areas in white in R Markdown are text. Interspersed amongst text are code 'chunks', denotated by three backticks (`) to close and open them. To run all the code a chunk, click anywhere in the chunk and press Ctrl-Shift-Enter, or press the green triangle in the top right corner of the chunk. To run a single line within a chunk, place your cursor anywhere in the line, and press Ctrl-Enter. Try these with the chunk containing plot(cars) now. 
+
+```{r}
+plot(cars)
+```
+
+---
+
+A plot (showing data from one of R's built in datasets) should have appeared directly below the chunk. You should also notice a change in the Console, the pane directly below the Notebook. There should be an additional line "> plot(cars)". This is R's way of letting you know which code has been run. When the code is finished running, at the bottom of the pane, R will show ">" followed by your cursor. Coding can also be done directly in the console, but this output will not save - it is mostly useful for testing out code. Type or copy 'plot(cars) into the console and press Enter to run it. This time, the plot should have appeared in the bottom right pane, under the "Plots" tab. From here, you can easily export (save) this image using the Export button. 
+
+## Basic Operations
+
+Insert a new chunk using the Ctrl-Shift-I shortcut. In the new chunk, type "1+1", excluding the quotation marks. Run this line of code. Note that when you run the line of code, R evaluates the output and prints it below the chunk, and also in the Console. You can resize the panes by clicking at the edge of a pane and dragging, for example, resizing or minimizing (button in top right) the Console. Type now into the chunk, on a new line, "a <- 1+2", again excluding the quotation marks. Run the line of code. It looks like nothing has happened, and nothing has printed below the chunk or in the console. However, in the top right pane, under the "Environment" tab, a new row should have appeared containing "a" and "3". The environment shows any R 'objects'. An object can be data, or a value, or a statistical model, or a function. An object is created by the assignment operator "<-". We assigned the value of "1+1" to the object "a". Now, if you type "a" and run that as a line of code into the chunk, you should see the number "3" appear below the chunk and in the Console.
+
+```{r}
+1+1
+a <- 1+2
+a
+```
+
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
