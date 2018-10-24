@@ -9,7 +9,7 @@ output:
     split_by: section
     config:
       toc:
-        collapse: none
+        collapse: section
         before: |
           <li><a href="./">R for STEPH</a></li>
     toolbar: 
@@ -23,4 +23,10 @@ delete_merged_file: true
 
 # Preface {-}
 
-Wheee!! Look at you go learning R you self-starting M.Sc. student you
+Welcome to R for STEPH. This 'book' offers the chance to supplement your learning in Stata by conducting the computer practical sessions in R. By the end of this book, you will have enough proficiency in R to carry out a number of basic analyses and understand principles that will allow you to program more complex analyses.
+
+Any questions about the content in this book can be directed to Daniel Carter [via email](daniel.carter1@lshtm.ac.uk) or [via Twitter](https://twitter.com/methodsmandan) if you're into that sort of thing. It should also be noted that there is a comment functionality in this book - leaving notes and questions for your peers can be a very useful way to learn.
+
+There is also the invaluable resource that is [Stack Exchange](https://stackexchange.com/). Chances are high that if you're running into an error or are otherwise unsure how to do something in R, someone else in the R community has encountered it before and posted about it on Stack Exchange.
+
+Happy coding :)

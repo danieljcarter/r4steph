@@ -1,4 +1,318 @@
 
 # Comparing Two Means: Practical 9
 
-In this practical, we compare two means.
+You have previously undertaken a pen and paper practical where you calculated confidence intervals for the mean of a continuous (or quantitative) variable. You have also conducted a t-test and been introduced to the concept of analysis of variance (ANOVA). We will now carry out these tasks in R.
+
+Before proceeding, ensure you are familiar with the basic concepts outlined in the Introduction to R in Practical 8. Especially ensure that you have installed the key packages **tidyverse** and **epiDisplay** and can read in data using the **foreign** package. Ensure you are working in an R notebook, copying code into chunks, and annotating your code as you go using RMarkdown. I suggest strongly working in pairs or splitting your screen.
+
+## Read in data & load libraries
+
+Load the libraries of the necessary packages prior to reading in the bab9 data file in the manner described in Practical 8. This can be done with the code below:
+
+```{r, results = FALSE, warning = FALSE, message = FALSE}
+#--- Load libraries
+library(tidyverse)
+library(epiDisplay)
+library(foreign)
+library(psych)
+
+options(scipen = 10, digits=3) # This changes output. R will not show scientific notation and will round every number to three digits (the default is 7).
+
+theme_set(theme_bw()) # This ensures our plots come out with a white background
+
+#--- Read in the file
+bab9 <- read.dta("./BAB9.dta", convert.factors = T) 
+```
+
+## Descriptive Statistics
+
+We first look at the first few rows of the dataset.
+
+R's summary output differs from Stata. We use the summary() function to examine a variable, this is equivalent to the _summ_ function in Stata. To get the equivalent to _summ, detail_ we can use the describe() function in the **psych** package.
+
+We can quickly graphically look at the distribution of a variable using the hist() command. Let's take a look at the _bweight_ variable. Remember that we have to tell R both the dataset (bab9) and the variable we are interested in (bweight) and that we do this with a dollar sign.
+
+We also use the sapply() command to check the class of each variable in the data. We pipe the dataset of interest into the command. sapply() iterates over each column of the dataset of interest and performs the given function, in this case, class(). We see that matagegp & gestcat have been read in as numeric, but they should be what R calls factor variables. Factor variables are R's way of representing categorical variables. We convert them to factors.
+
+```{r}
+#--- Investigate the dataset
+head(bab9)
+
+#--- Get summary statistics
+describe(bab9)
+
+#--- Plot birthweight
+hist(bab9$bweight)
+
+#--- Check the class of each variable
+bab9 %>% sapply(class)
+
+#--- Same code without a pipe:
+# sapply(bab9, class)
+
+#--- Convert factors
+bab9$matagegp <- as.factor(bab9$matagegp)
+bab9$gestcat <- as.factor(bab9$gestcat)
+```
+
+## A ggplot2 Tangent
+
+Below is code to produce a much nicer looking plot using the **ggplot2** package in the **tidyverse**. While the code seems more complicated, in the long run, for producing nicer graphs, the **ggplot2** functionalities are essential.
+
+```{r, warning = F, message = F}
+#--- Plot birthweight (nicely!)
+bab9 %>% ggplot(aes(x = bweight)) + geom_histogram()
+
+#--- Same plot without a pipe:
+# ggplot(data = bab9, aes(x = bweight)) + geom_histogram()
+```
+
+Let's unpack this code: we first indicate that we're using the bab9 dataset. We pipe that dataset into the first argument of the ggplot function. We then specify what elements of the data we wish to extract with the aes() command, short for aesthetics. In this case, we tell R we'd like _bweight_ on the x axis. We then use geom_histogram() to specify we'd like a histogram (as opposed to say, a density curve, which we could get with geom_density()). 
+
+## Constructing Confidence Intervals
+
+The ci() command from the epiDisplay package calculates confidence intervals using an assumed t-distribution. It defaults to a 95% confidence interval, but this can be changed with the option 'alpha', as in the second line of code below for a 99% confidence interval. Note that the 99% confidence interval is _wider_ than the 95% confidence interval.
+
+```{r}
+#--- Generate 95% and 99% confidence intervals
+ci(bab9$bweight)
+ci(bab9$bweight, alpha = 0.01)
+```
+
+Note that the implicit calculation performed by the ci() command is: $\bar{X} \pm t \frac{s}{\sqrt{n}}$
+
+$\bar{X}$ represents the sample mean, $t$ the value of the t-distribution for a given number of degrees of freedom and confidence level, $s$ the sample standard deviation, and $n$ the sample size.
+
+## Interpretation of Confidence Intervals
+
+Confidence intervals are inferential, not descriptive. That is, confidence intervals express a property of the population, not the sample. Furthermore, a confidence interval does **NOT** imply that there is 95% chance the population mean lies in the confidence interval. The analysis is complete: in this sample, the confidence interval will either cover the population mean or it will not. 
+
+If we repeated this same analysis on a number of samples, the confidence intervals generated by the analysis will cover the true population mean 95% of the time. Thus, in this particular instance, we do not _know_ if the interval covers the mean, but we are 95% confident it will. The confidence interval is thus a statement about the _estimation procedure_ and not about the specific interval generated in the sample. 
+
+Have a quick check of your understanding. Which of the following are correct?
+
+1. 95% of the 641 babies have a birthweight between 3079 and 3180 grams
+2. There is a 95% chance that the mean birthweight of all babies in the population is between 3079 and 3180 grams
+3. The confidence interval ranging from 3079 to 3180 grams would be expected to cover the true population proportion 95% of the time
+
+
+## Interpretation of CIs: Answer
+
+3 is the only correct interpretation.
+
+3 is correct as it is a statement conditional on the interval: 95% of intervals constructed in a similar way to the given interval (i.e. through repeated sampling from the population) would be expected to cover (or contain) the true population mean. 
+
+1 is incorrect as the confidence interval refers to the population mean, not the sample. 2 is incorrect because the population mean is fixed (and unknown) - the confidence interval either covers this mean or it does not. These points are subtle, but important to understand. 
+
+## Distribution Across Subgroups
+
+Suppose we wanted to investigate whether birthweight differed by the gender of the baby. One clear place to start is to look at variable summaries by group. The easiest way to do this in R is using the describeBy() function from the **psych** package.
+
+```{r}
+#--- Examine birthweight by gender
+describeBy(bab9$bweight, bab9$sex)
+```
+
+```{block2, type='rmdexercise2'}
+Exercise 9.1: Descriptively, do the means and standard deviations differ by gender?
+```
+
+Recall that if working in R Notebooks, you can write the answer to this question in the whitespace directly beneath the code chunk relevant for answering it.
+
+## Graphing Two Distributions
+
+It is not simple to graph two distributions using R's inbuilt plot() or hist() functions, but it requires only a small amendment to our ggplot code used earlier in the practical. We add _fill = sex_ to the aes() function to say that ggplot should fill the bars according to gender, and add _bins = 50_ to increase the number of bins in the histogram to the geom_histogram() function.
+
+```{r}
+#--- Plot birthweight by gender
+bab9 %>% ggplot(aes(x = bweight, fill = sex)) + geom_histogram(bins = 50)
+```
+
+```{block2, type='rmdexercise2'}
+Exercise 9.2: Are the distributions roughly normal? Is the spread of values roughly similar in each group? Are the sample sizes still reasonably large? 
+```
+
+## Comparing Two Means
+
+Recall that we may compare two means using either a t-test or a z-test, depending on some key characteristics of the sample. 
+
+A z-test is used for large (the arbitrary threshold often given is >30) samples where the population standard deviation is known. A t-test is used for smaller sample sizes and where the population standard deviation is unknown. Both tests assume normality.
+
+In practice, you will very rarely know the population standard deviation and you will almost always use a t-test. The t-test can in practice be used in all circumstances where a z-test can be used. As the sample size approaches infinity, the t-distribution approaches the z-distribution.
+
+One key assumption of a standard t-test is that the population standard deviations are the same in each group. One quirk of R is that the t.test() command assumes that the variances are **NOT** equal in each group and will carry out a complex approximation to calculate the appropriate degrees of freedom - normally this is desired behaviour as in practice, we rarely meet the assumption of equal variance. Equality of variance can be tested using var.test().
+
+## One Sample t-test
+
+The average mean birthweight in England and Wales is about 3300g. We first conduct a one sample t-test to determine if the population mean birthweight differs from this hypothetical value.
+
+The _mu_ option to _t.test()_ allows you to pre-specify which mean you would like to compare with.
+
+```{r}
+#--- Run a one-sample t-test
+t.test(bab9$bweight, mu = 3300, var.equal = T)
+```
+
+When reporting the results of the test, it is useful to specify the null hypothesis. In this case, the null hypothesis is that the mean population birthweight is equal to 3300. The alternative hypothesis is thus that the mean population birthweight is not equal to 3300.
+
+```{block2, type='rmdexercise2'}
+Exercise 9.3: What do you conclude from this test?
+```
+
+## Two sample t-test
+
+We can also conduct a two-sample t-test to determine if the mean population birthweight in boys is the same as the mean population birthweight in girls. The syntax here is slightly different as it uses R's formula interface. A formula is indicated by the presence of a tilde (~), and the tilde is shorthand for 'estimate'. So the formula below says estimate birthweight from sex. This is slightly counter-intuitive for the t-test but will make more sense when applied more generally later on.
+
+We also use the var.test() command to assess whether the equality of variance assumption holds.
+
+```{r}
+#--- Run the two-sample t-test
+t.test(bab9$bweight ~ bab9$sex, var.equal = T)
+```
+
+```{block2, type='rmdexercise2'}
+Exercise 9.4: What two means are being compared? What is the null hypothesis of this test? What is the alternative hypothesis? What do you conclude about the strength of evidence against the null hypothesis? 
+```
+
+---
+
+```{r}
+#--- Run an F-test for equality of variances
+var.test(bab9$bweight ~ bab9$sex)
+```
+
+```{block2, type='rmdexercise2'}
+Exercise 9.5: What is the null hypothesis of the test of equality of variances? What is the alternative hypothesis? What do you conclude about the strength of evidence against the null hypothesis? Was the assumption of equal variance in boys and girls reasonable? 
+```
+
+## Analysis of Variance
+
+Analysis of Variance (ANOVA) is an extension of the t-test to compare means between multiple groups. 
+
+ANOVA works by comparing two different sources of variation in the dataset: within-group variance and between-group variance. Consider the example using variation in birthweight by gender. Suppose that there is no true difference between mean birthweights by gender. If this is true, then the means in our data are different only because their sample means happen to vary about a single underlying (unknown) population mean. If that is true, then the between-gender (between-group) variance (measured by the mean square) will, on average, be the same as the within-gender (within-group) variance and any tendency to be larger will be due to chance. This is the situation under the null hypothesis.
+
+To fit an ANOVA we use the R command aov(), which takes a formula as its input. Let's replicate our t-test with an ANOVA. The default output is not particularly helpful to interpreting the test, so we assign our ANOVA the name anova1 and call for a summary() of the results. Note that the ANOVA appears now in the Environment tab in the upper right and we can access it at any point.
+
+An ANOVA has three major assumptions: normality, homoskedasticity (or equality of variance), and independence. We have already examined normality and homoskedasticity when we examined the plots of birthweight by gender, and independence holds by design (whether a given baby is male or female is independent of any other baby genders). Stata automatically tests for homoskedasticity when performing an ANOVA using Bartlett's test but in R it is a separate command, bartlett.test(). Bartlett's test is a generalisation to more than one variance of the homogeneity of variance test we conducted for the t-test.
+
+```{r}
+#--- Run the ANOVA
+anova1 <- aov(bab9$bweight ~ bab9$sex)
+summary(anova1)
+
+#--- Conduct Bartlett's test
+bartlett.test(bab9$bweight ~ bab9$sex)
+```
+
+In this case, we note that there is strong evidence against the null hypothesis that there is no true difference in birthweights by gender. The probability that we obtained a difference this large or larger under the null hypothesis is 0.0012. Note this is the same p-value as given by the t-test.
+
+## ANOVA in Multiple Groups
+
+```{r}
+anova2 <- aov(bab9$bweight ~ bab9$matagegp)
+summary(anova2)
+```
+
+Note that since there are four categories in matagegp, we get three degrees of freedom.
+
+```{block2, type='rmdexercise2'}
+Exercise 9.6: From the results of this test:
+a) What is the null hypothesis being tested in the analysis of variance?
+b) What is the result of the test?
+```
+
+
+## Non-Parametric Tests
+
+Non-parametric (or distribution-free) tests do not assume that the distributions being compared are normal, so are useful alternatives where the assumptions of normality do not hold. They are called "non-parametric tests" because they do not work estimate parameters for a model in the same way. Below there are two examples of these
+kinds of test along with the output you can expect.
+
+### Wilcoxon rank sum test
+
+The 'Wilcoxon Rank Sum test' (also called 'Mann-Whitney test'), is a distribution-free alternative to the t-test,
+and is used to test the hypothesis that the distributions in the two groups have the same median. For
+this test you will need to use the BABNEW.DTA dataset - we read in that dataset below. 
+
+Note that babnew appears in the environment pane alongside bab9 - so we can readily access both datasets at once, no need to replace. This is the tradeoff for typing the dataset name each time. Note that it is possible to do away with typing the dataset name by working in the tidyverse, or alternatively using attach(dataset) and then detach(dataset). This option is not recommended, as it can easily get confusing! Use short dataset names and let RStudio do the autocomplete work for you!
+
+We also supply the code for the test and additional code to get the median by gender as it is not clear from the test which median is the higher median.
+
+```{r, warning = FALSE, message = FALSE}
+#--- Read in the file
+babnew <- read.dta("./BABNEW.dta", convert.factors = T) 
+
+#--- Run the WMW test
+wilcox.test(babnew$bweight ~ babnew$sex) 
+
+#--- Get medians
+babnew %>% group_by(sex) %>% summarise(median(bweight))
+
+#--- Note that the code below does not work! 
+#--- This is because the second pipe is sending babnew grouped by sex into the first argument of the median function
+#--- ?median shows us that the first argument median() expects is not a dataset but the variable to summarise!
+
+# babnew %>% group_by(sex) %>% median(bweight)
+# ?median
+
+```
+The code to get the median comes from the tidyverse functions. We first pipe in babnew into the group_by() function, which does exactly what it says on the tin: perform the following functions in groups defined by gender. We then use the summarise() function to extract a particular measure, that is, the median.
+
+### Wilcoxon Signed Rank Test
+
+The non-parametric equivalent of the t-test for matched pairs is the 'Wilcoxon signed rank test'. We will do this on the nonparametric.dta dataset, which contains 15 pairs of skinfold measurements, with each pair being a skinfold measurement on a single individual by two observers A and B. 
+
+We want to test for a difference in the two observers, so we check the distribution of
+the outcome variable in each group (using histograms). We have seen this histogram code before, we have just changed the variable names.
+
+
+```{r, warning = FALSE, message = FALSE}
+#--- Read in the file
+nonpara <- read.dta("./NONPARAMETRIC.dta", convert.factors = T) 
+
+#--- Plot histograms
+nonpara %>% ggplot(aes(x = sfa)) + geom_histogram(bins = 5)
+nonpara %>% ggplot(aes(x = sfb)) + geom_histogram(bins = 5)
+```
+
+To plot both histograms at once and to run the test, we will need to reshape the data from wide to long. This is quite simple with the tidyverse function gather().
+
+gather() goes from wide to long. It takes as arguments: gather(data, name for new key column, name for new value column, first column where values are stored : last column where values are stored). The ':' indicates include every column between the first and the last. The factor_key = T argument tells us to make the key column a factor column.
+
+We see some new ggplot arguments in geom_histogram(). The alpha argument tells ggplot to put some transparency on the bars, and the position = "identity" argument tells ggplot to plot the histograms overlapping rather than stacked on top of one another.
+
+```{r}
+#--- Convert from wide to long
+nonpara.l <- nonpara %>% gather(observer, skinfold, sfa:sfb, factor_key=TRUE)
+
+#--- Plot on the same histogram
+nonpara.l %>% ggplot(aes(x = skinfold, fill = observer)) + 
+  geom_histogram(bins = 5, alpha = 0.5, position = "identity")
+
+```
+
+We now run the test and find strong evidence against the null hypothesis that the median skinfold value does not differ by observer. 
+
+```{r, warning = FALSE, message = FALSE}
+#--- Run the Rank-Sum test
+wilcox.test(nonpara.l$skinfold ~ nonpara.l$observer, paired = T) 
+```
+
+```{block2, type='rmdexercise2'}
+Exercise 8.7: Run the equivalent t test using the paired = T option. What do you conclude?
+```
+
+## Solutions to Exercises
+
+### Exercise 8.1
+
+### Exercise 8.2
+
+### Exercise 8.3
+
+### Exercise 8.4
+
+### Exercise 8.5
+
+### Exercise 8.6
+
+### Exercise 8.7
