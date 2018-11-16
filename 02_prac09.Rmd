@@ -63,6 +63,17 @@ Below is code to produce a much nicer looking plot using the **ggplot2** package
 #--- Plot birthweight (nicely!)
 bab9 %>% ggplot(aes(x = bweight)) + geom_histogram()
 
+#--- Add normal curve
+# library(magrittr)
+# 
+# meanbw <- bab9 %$% mean(bweight)
+# sdbw <- bab9 %$% sd(bweight)
+# 
+# bab9 %>% ggplot(aes(x = bweight)) + 
+#   geom_histogram(aes(y = ..density..)) + 
+#   stat_function(fun = dnorm, args = list(mean = meanbw, sd = sdbw)) + 
+#   theme_bw()
+
 #--- Same plot without a pipe:
 # ggplot(data = bab9, aes(x = bweight)) + geom_histogram()
 ```
