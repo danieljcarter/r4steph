@@ -1,4 +1,0 @@
-
-# Linear Regression: Practical 16
-
-Introduction to linear regression
